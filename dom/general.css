@@ -1,0 +1,75 @@
+html {
+  padding: 0px;
+  margin: 0px;
+}
+body {
+  padding: 0px;
+  margin: 0px;
+  background-image: url(images/background.jpg);
+  background-size: cover;
+  flow: vertical;
+  height:*;
+}
+#flow-container {
+  flow:grid(1 1 1,
+            2 5 3,
+            4 4 4);
+  height:*;
+}
+.horizontal-margin {
+  display:inline-block;
+  width: 30px;
+}
+.vertical-margin {
+  display:inline-block;
+  height: 48px;
+}
+.center-child {
+  width:30px;
+  height:40px;
+  margin: 0px;
+
+  float: right;
+  vertical-align: middle;
+}
+.center-child:hover {
+  background-color: #f00;
+}
+
+.centered {
+  margin: auto;
+}
+#header {
+  background-color: #0d1721;
+  height: 40px;
+  width: *;
+  margin: 0px;
+  padding: 0px;
+}
+#main-content {
+  display:inline-block;
+  width:*;
+  height:*;
+  max-width:1600px;
+  flow: horizontal;
+  overflow: hidden;
+  margin: auto;
+}
+#server-container {
+  width: 530px;
+  background-color: #0d172190;
+  height: *;
+}
+#chat-container {
+  min-width: 400px;
+  width: *;
+  background-color: #0d172190;
+  height: *;
+  margin-left: 30px;
+}
+#options-container {
+  max-width: 800px;
+  width: *;
+  background-color: #0d172190;
+  height: *;
+}
