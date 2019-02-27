@@ -5,6 +5,8 @@ extern crate json;
 extern crate sciter;
 extern crate renegadex_patcher;
 
+mod traits;
+
 use std::env::args;
 
 use std::process;
@@ -15,11 +17,11 @@ use sciter::{Value, Element, HELEMENT};
 use sciter::dom::event::*;
 
 use renegadex_patcher::Downloader;
+use traits::JsonExtend;
 
-#[derive(Default)]
-struct Handler {
-  progress: Option<Element>,
-  state: bool,
+struct Handler;
+
+impl Handler {
 }
 
 impl sciter::EventHandler for Handler {
@@ -43,23 +45,45 @@ impl sciter::EventHandler for Handler {
 
   fn document_complete(&mut self, root: sciter::HELEMENT, source: sciter::HELEMENT) {
     println!("Loaded page!");
-/*
+    /*
     let root = Element::from(root);
-    let mut smth = root.find_first("tbody").unwrap().unwrap();
-    let mut entry = Element::with_parent("tr", &mut smth).unwrap();
-    entry.set_attribute("class", "server-entry");
-    let mut server = Element::with_text("td", "FPI first thingymagic").unwrap();
-    entry.append(&server).expect("wtf?");
-    let mut map = Element::with_text("td", "Trilogy").unwrap();
-    entry.append(&map).expect("wtf?");
-    let mut players = Element::with_text("td", "4/64").unwrap();
-    entry.append(&players).expect("wtf?");
-    let mut ping = Element::with_text("td", "18ms").unwrap();
-    entry.append(&ping).expect("wtf?");
-    
+    let mut smth = match root.find_first("tbody").unwrap() {
+      Some(mut tbody) => {
+        let servers_url = "http://serverlist.renegade-x.com/servers.jsp";
+        match reqwest::get(servers_url) {
+          Ok(mut servers_response) => {
+            let servers_text = servers_response.text().unwrap();
+            let servers_data = match json::parse(&servers_text) {
+              Ok(result) => result,
+              Err(e) => panic!("Invalid JSON: {}", e)
+            };
+            for server_entry in servers_data.into_inner() {
+              //let mut tbody = tbody_wrapped.unwrap();
+              let mut entry = Element::with_parent("tr", &mut tbody).unwrap();
+              entry.set_attribute("class", "server-entry");
+              let mut server = Element::with_text("td", &server_entry["Name"].as_string()).unwrap();
+              server.set_attribute("name","name");
+              entry.append(&server).expect("wtf?");
+              let mut map = Element::with_text("td", &server_entry["Current Map"].as_string()).unwrap();
+              server.set_attribute("name","map");
+              entry.append(&map).expect("wtf?");
+              let mut players = Element::with_text("td", &format!("{}/{}", server_entry["Players"].as_u64().unwrap(), server_entry["Variables"]["Player Limit"].as_u64().unwrap())).unwrap();
+              server.set_attribute("name","players");
+              entry.append(&players).expect("wtf?");
+              let mut ping = Element::with_text("td", "18ms").unwrap();
+              server.set_attribute("name","latency");
+              entry.append(&ping).expect("wtf?");
+            }
+          },
+          Err(e) => println!("Is your internet down? {}", e)
+        };
+
+      },
+      None => {}
+    };
     //let smth = body.select("table");
     //println!("{:?}", smth);
-*/
+    */
   }
 }
 
@@ -76,7 +100,7 @@ fn main() {
     )
   ).unwrap(); // Enables connecting to the inspector via Ctrl+Shift+I
   let mut frame = sciter::Window::new();
-  frame.event_handler(Handler::default());
+  frame.event_handler(Handler);
   let mut path = std::env::current_exe().unwrap();
   path.pop();
   path.push("dom/frontpage.htm");
@@ -84,8 +108,6 @@ fn main() {
   //frame.load_html(html, Some("example://minimal.htm"));
   frame.run_app();
 }
-
-
 
 
 pub struct Launcher {

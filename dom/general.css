@@ -1,15 +1,32 @@
 html {
   padding: 0px;
   margin: 0px;
+  min-width: min-content;
+  min-height: min-content;
 }
 body {
   padding: 0px;
   margin: 0px;
-  background-image: url(images/background.jpg);
+  /*background-image: url(images/background.png);*/
+  background-color: #15212f;
   background-size: cover;
   flow: vertical;
   height:*;
 }
+
+a, a:link,a:visited,a:hover,a:active {
+  padding: 0px;
+  margin: 0px;
+  text-decoration: none;
+  color: #fff;
+}
+
+div {
+  padding: 0px;
+  margin: 0px;
+  color: #fff;
+}
+
 #flow-container {
   flow:grid(1 1 1,
             2 5 3,
@@ -52,13 +69,17 @@ body {
   height:*;
   max-width:1600px;
   flow: horizontal;
-  overflow: hidden;
   margin: auto;
 }
 #server-container {
   width: 530px;
   background-color: #0d172190;
   height: *;
+}
+#server-info {
+  width: *;
+  background-color: #0d172190;
+  height: 100px;
 }
 #chat-container {
   min-width: 400px;
@@ -68,8 +89,34 @@ body {
   margin-left: 30px;
 }
 #options-container {
+  display:inline-block;
   max-width: 800px;
+  margin: auto;
   width: *;
   background-color: #0d172190;
   height: *;
 }
+
+#menuentry {
+  display:inline-block;
+  margin-left: 10px;
+  height: 40px;
+  color: #FFF;
+  padding-left: 20px;
+  padding-right: 20px;
+  
+}
+
+#menuentry:hover {
+  height: 40px;
+  background-color: #050a0f;
+}
+/*
+#menuentry:selected {
+  height: 36px;
+  border-bottom: 4px solid red;
+}
+*/
+
+[src-hover] {aspect: "Emu.srchover";}
+[custom-role] {aspect: "Emu.role";}

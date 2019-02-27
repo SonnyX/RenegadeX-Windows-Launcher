@@ -3,49 +3,13 @@
 <title>Minimalistic Sciter demo</title>
 <style>
 @import url(general.css);
-[src-hover] {aspect: "Emu.srchover";}
-[custom-role] {aspect: "Emu.role";}
 </style>
 <script type="text/tiscript">
-  namespace Emu {
-    function srchover() {
-      var picture = this[0];
-      var srcnormal = picture.attributes["src"];
-      stdout.println(srcnormal);
-      this 
-        << event mouseenter (evt) {
-          picture.attributes["src"] = this.attributes["src-hover"];
-        }
-        << event mouseleave (evt, that) { 
-          picture.attributes["src"] = srcnormal;
-        }
-    }
-    function role() {
-      this << event click (evt) {
-        var role = this.attributes["custom-role"];
-        switch(role) {
-          case "close":
-            view.close();
-            break;
-          case "maximise":
-            view.windowState = View.WINDOW_MAXIMIZED;
-            break;
-          case "minimise":
-            view.windowState = View.WINDOW_HIDDEN;
-            break;
-        }
-      }
-    }
-  }
+  include "menubar.tls";
 </script>
 </head>
 <body>
-<div id="header" role="window-caption">
-  <div style="width: 11px; float: right;"><picture /></div>
-  <div custom-role="close" class="center-child" src-hover='images/Close_Rollover.svg'><picture class="centered" src="images/Close.svg" style="width: 8px; height: 8px;"/></div>
-  <div custom-role="maximise" class="center-child" src-hover='images/Maximise_Rollover.svg'><picture class="centered" src="images/Maximise.svg" style="width: 11px; height: 8px;"/></div>
-  <div custom-role="minimise" class="center-child" src-hover='images/Minimise_Rollover.svg'><picture class="centered" src="images/Minimise.svg" style="width: 10px; height: 35px;"/></div>
-</div>
+<include src="menubar.htm" />
 <div id="flow-container">
   <div class="vertical-margin"></div>
   <div class="horizontal-margin"></div>
