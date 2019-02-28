@@ -1,12 +1,17 @@
-html {
+* {
+  background-gradient: none;
+  background-color: none;
+  background-image: none;
+  border: 0px;
   padding: 0px;
   margin: 0px;
+}
+html {
   min-width: min-content;
   min-height: min-content;
 }
 body {
-  padding: 0px;
-  margin: 0px;
+
   /*background-image: url(images/background.png);*/
   background-color: #15212f;
   background-size: cover;
@@ -15,15 +20,11 @@ body {
 }
 
 a, a:link,a:visited,a:hover,a:active {
-  padding: 0px;
-  margin: 0px;
   text-decoration: none;
   color: #fff;
 }
 
 div {
-  padding: 0px;
-  margin: 0px;
   color: #fff;
 }
 
@@ -44,9 +45,6 @@ div {
 .center-child {
   width:30px;
   height:40px;
-  margin: 0px;
-
-  float: right;
   vertical-align: middle;
 }
 .center-child:hover {
@@ -56,12 +54,16 @@ div {
 .centered {
   margin: auto;
 }
-#header {
+#frame-header {
   background-color: #0d1721;
   height: 40px;
   width: *;
-  margin: 0px;
-  padding: 0px;
+  flow: horizontal;
+}
+#header {
+  height: 40px;
+  width: *;
+  
 }
 #main-content {
   display:inline-block;
