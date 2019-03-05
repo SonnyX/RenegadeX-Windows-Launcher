@@ -1,0 +1,40 @@
+<html window-icon="images/rx.ico" window-frame="extended" window-resizable>
+<head>
+<title>Minimalistic Sciter demo</title>
+<style>
+@import url(general.css);
+</style>
+<script type="text/tiscript">
+  include "menubar.tls";
+  function self.ready() {
+    view.check_update(onDone);
+    
+  }
+  function onDone(url) {
+    view.load(self.url(url));
+  }
+</script>
+</head>
+<body>
+<div id="frame-header">
+  <div style="width:*;height:40px;" role="window-caption">
+  </div>
+  <div style="width:100px;height:40px;flow:horizontal;">
+    <button role="window-minimize" class="center-child" src-hover='images/Minimise_Rollover.svg'><picture class="centered" src="images/Minimise.svg" style="width: 10px; height: 35px;"/></button>
+    <button role="window-maximize" class="center-child" src-hover='images/Maximise_Rollover.svg'><picture class="centered" src="images/Maximise.svg" style="width: 11px; height: 35px;"/></button>
+    <button role="window-close" class="center-child" src-hover='images/Close_Rollover.svg'><picture class="centered" src="images/Close.svg" style="width: 8px; height: 35px;"/></button>
+    <div style="width: 10px"><picture /></div>
+  </div>
+</div>
+
+<div id="flow-container">
+  <div class="vertical-margin"></div>
+  <div class="horizontal-margin"></div>
+  <div class="horizontal-margin"></div>
+  <div class="vertical-margin"></div>
+  <div #load-container>
+    This is the initial load screen, similar to discord connecting to the servers.
+  </div>
+</div>
+</body>
+</html>

@@ -7,6 +7,10 @@
     padding:0;
     overflow-x:auto;
   }
+
+  th.sortable {
+    prototype: VTh url(vlist.tis);
+  }
   
   table:root[resizeable] > thead {
     behavior:column-resizer;
@@ -39,12 +43,12 @@
   } 
 
   table > tbody > tr.highlighted {
-    background: #da9;
+    background-color: #da9;
   }
 
   table > tbody > tr:current,
   table > tbody > tr:checked {
-    background-color: #0d172190;
+    background-color: #0d1721;
   }
 
   table > tbody > tr:hover {
@@ -53,7 +57,7 @@
 
   table > tbody > tr:current:hover,
   table > tbody > tr:checked:hover {
-    background-color: #0d172190;
+    background-color: #0d1721;
   }
 }
 

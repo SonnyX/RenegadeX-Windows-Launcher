@@ -1,0 +1,143 @@
+.ipsSpoiler, .ipsStyle_spoiler {
+    margin: 0;
+    padding: 0px 15px;
+    border-width: 1px 1px 1px 1px;
+    border-color: #e5e5e5;
+    border-style: solid;
+    position: relative;
+    background: #fafafa;
+    clear: both;
+}
+
+.ipsSpoiler_header {
+    background: #e5e5e5;
+    margin: 0px -15px;
+    padding: 5px 15px;
+    color: #353535;
+    font-weight: bold;
+    font-size: 13px;
+    display: block;
+    cursor: pointer;
+}
+
+
+.ipsSpoiler {
+    border-color: rgba(53,186,255,.2);
+    background: #05131b;
+}
+
+.ipsSpoiler_header {
+    background: rgba(53,186,255,.2);
+    color: inherit;
+}
+.ipsImage_thumbnailed {
+    border: 1px solid rgba(53,186,255,.2);
+}
+
+.ipsEmbeddedVideo iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.ipsEmbeddedVideo {
+    float: none;
+    clear: both;
+    width: 100%;
+    overflow: auto;
+    position: relative;
+}
+
+.ipsEmbeddedVideo:not( video ) {
+    padding-bottom: 56.25%;
+    padding-top: 25px;
+}
+.ipsAttachLink_image, .ipsAttachLink {
+    margin-bottom: 15px;
+}
+
+
+
+a[data-mentionid] {
+    display: inline-block;
+    border-radius: 2px;
+    padding: 0px 5px;
+    font-size: 90%;
+    color: #fff;
+    text-decoration: none !important;
+    background: #3d6594;
+}
+
+
+img {
+    border-style: none;
+}
+
+b, strong {
+    font-weight: inherit;
+}
+
+b, strong {
+    font-weight: bolder;
+}
+a {
+    background-color: transparent;
+    -webkit-text-decoration-skip: objects;
+}
+html {
+    line-height: 1.15;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+
+.ipsImage {
+    max-width: 100%;
+    height: auto;
+}
+
+.ipsImage_thumbnailed {
+    border: 1px solid #E2E2E2;
+    padding: 1px;
+}
+
+img {
+    vertical-align: middle;
+}
+
+a {
+    color: #3d6594;
+    text-decoration: none;
+}
+
+
+*, .ipsApp input[type="search"] {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+    position: relative;
+}
+
+body {
+    font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+    color: #353c41;
+    height: 100%;
+    background-color: #fcfcfc;
+    margin: 0;
+}
+
+span.ipsEmoji, div.ipsEmoji {
+    font-weight: normal;
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "NotoColorEmoji", "Segoe UI Symbol", "Android Emoji", "EmojiSymbols";
+}
+
+
+

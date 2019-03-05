@@ -1,0 +1,261 @@
+<html window-icon="images/rx.ico" window-frame="extended" window-resizable>
+<head>
+<title>Minimalistic Sciter demo</title>
+<style>
+* {
+  vertical-scrollbar: my-v-scrollbar;
+}
+@import url(news.css);
+
+html, body, button {
+  background-gradient: none;
+  background-color: none;
+  background-image: none;
+  border: 0px;
+  padding: 0px;
+  margin: 0px;
+}
+
+p, div {
+  padding: 0px;
+}
+
+html {
+  min-width: min-content;
+  min-height: min-content;
+}
+body {
+
+  /*background-image: url(images/background.png);*/
+  background-color: #15212f;
+  background-size: cover;
+  flow: vertical;
+  height:*;
+}
+
+#flow-container {
+  flow:grid(1 1 1,
+            2 5 3,
+            4 4 4);
+}
+.horizontal-margin {
+  display:inline-block;
+  width: 30px;
+}
+.vertical-margin {
+  display:inline-block;
+  height: 48px;
+}
+.center-child {
+  width:30px;
+  height:40px;
+  vertical-align: middle;
+}
+.center-child:hover {
+  background-color: #f00;
+}
+
+.centered {
+  margin: auto;
+}
+#frame-header {
+  background-color: #0d1721;
+  height: 40px;
+  width: *;
+  flow: horizontal;
+}
+#header {
+  height: 40px;
+  width: *;
+  
+}
+#main-content {
+  display:inline-block;
+  width:*;
+  height:*;
+  max-width:1600px;
+  flow: horizontal;
+  margin: auto;
+}
+#server-container {
+  width: 530px;
+  background-color: #0d172190;
+  height: *;
+}
+#server-info {
+  width: *;
+  background-color: #0d172190;
+  height: 100px;
+}
+#chat-container {
+  min-width: 400px;
+  width: *;
+  background-color: #0d172190;
+  height: *;
+  margin-left: 30px;
+}
+#options-container {
+  display:inline-block;
+  max-width: 800px;
+  margin: auto;
+  width: *;
+  background-color: #0d172190;
+  height: *;
+}
+#patch-container {
+  display:inline-block;
+  max-width: 700px;
+  margin: auto;
+  width: *;
+  background-color: #0d172190;
+  height: *;
+}
+
+#menuentry {
+  display:inline-block;
+  margin-left: 10px;
+  height: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
+  
+}
+
+#menuentry:hover {
+  height: 40px;
+  background-color: #050a0f;
+}
+
+/* style block defining vertical scrollbar */
+@set my-v-scrollbar
+{
+  .prev 
+  { 
+    border:1dip solid #AAA; 
+    foreground-image:url( images/sb-v-scroll-prev.png ); 
+    foreground-position:50% 50%;
+    foreground-repeat:no-repeat;
+    height:15dip;
+  }
+  
+  .next 
+  { 
+    border:1dip solid #AAA; 
+    foreground-image:url( images/sb-v-scroll-next.png ); 
+    foreground-position:50% 50%;
+    foreground-repeat:no-repeat; 
+    height:15dip;
+  }
+  
+  .base,
+  .next-page, 
+  .prev-page 
+  { 
+    background-image:url( images/sb-scroll-back.png ); 
+    background-position:5 5 5 5; /*left top right bottom offsets*/
+    background-repeat:expand; 
+  }
+  .slider 
+  { 
+    border:1dip solid #AAA; 
+    background:red; 
+    //padding:0 4dip 0 4dip;
+    background-clip:content-box;
+    foreground-image:url( images/sb-scroll-slider.png ); 
+    foreground-position:50% 50%;
+    foreground-repeat:no-repeat; 
+  }
+  
+  .next:disabled, .slider:disabled, 
+  .prev:disabled  { height:0; border:none; foreground-image:none; }
+  
+  .base:disabled
+  {
+    background-image:url( images/sb-scroll-base.png ); 
+    background-repeat:repeat; 
+    background-position:0 0 0 0;
+  }
+    
+  .next:hover,   .slider:hover, 
+  .prev:hover     { background-color: #EEE; }
+  
+  .next:active,  .slider:active, 
+  .prev:active    { background-color: #FFF; }
+  
+  .base { width: 15dip; } /* explicit declaration of its width */
+  .corner { background-color: transparent; }
+}
+/*
+#menuentry:selected {
+  height: 36px;
+  border-bottom: 4px solid red;
+}
+*/
+
+[src-hover] {aspect: "Emu.srchover";}
+[custom-role] {aspect: "Emu.role";}
+img {
+  max-width: 700px;
+}
+</style>
+<script type="text/tiscript">
+  include "menubar.tls";
+  function getFeed() {
+    var future = promise();
+    var rqp = { 
+      type: #get, 
+      url: "https://renegade-x.com/forums/forum/7-news.xml", 
+      success: function(result, status) {
+        stdout.println("Got a result from #get");
+        var scanner = new XMLScanner(result);
+        var depth = 0;
+        while:loop (var token = scanner.token())
+          switch( token )
+          {
+            case XMLScanner.EOF:            throw String.$(XML error at line {scanner.lineNo}, <{tag} tag is not closed );
+            case XMLScanner.ERROR:          throw String.$(XML error at line {scanner.lineNo});
+            case XMLScanner.CDATA:          $(#news-container).html = scanner.value;  return; 
+          }
+        stdout.println(content);
+      },
+      onerror: function(data, status) {
+        stdout.println("Got a error from #get");
+      },
+      returns: true,
+    };
+    View.request(rqp);
+    return future;
+  }
+  async function self.ready() {
+    await getFeed();
+  }
+</script>
+</head>
+<body>
+<div id="frame-header">
+  <div style="width:*;height:40px;" role="window-caption">
+  </div>
+  <div style="width:100px;height:40px;flow:horizontal;">
+    <button role="window-minimize" class="center-child" src-hover='images/Minimise_Rollover.svg'><picture class="centered" src="images/Minimise.svg" style="width: 10px; height: 35px;"/></button>
+    <button role="window-maximize" class="center-child" src-hover='images/Maximise_Rollover.svg'><picture class="centered" src="images/Maximise.svg" style="width: 11px; height: 35px;"/></button>
+    <button role="window-close" class="center-child" src-hover='images/Close_Rollover.svg'><picture class="centered" src="images/Close.svg" style="width: 8px; height: 35px;"/></button>
+    <div style="width: 10px"><picture /></div>
+  </div>
+</div>
+
+<div id="flow-container">
+  <div class="vertical-margin"></div>
+  <div class="horizontal-margin"></div>
+  <div class="horizontal-margin"></div>
+  <div class="vertical-margin"></div>
+  <div #patch-container>
+    <div #news-container style="width:*;max-height:400px;overflow-y:auto;">
+    </div>
+    <div #update-container style="">
+      <div #update-bar style="width:*; height:4px; background-color: #fff;">
+        <div #progress-bar style="width:55%; height: 4px; background-color: #0f0"/>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
