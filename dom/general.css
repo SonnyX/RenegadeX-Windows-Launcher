@@ -1,13 +1,19 @@
-* {
+html, body, button, input, table, thead, tbody, tr, th, td {
   background-gradient: none;
   background-color: none;
   background-image: none;
   border: 0px;
   padding: 0px;
   margin: 0px;
+}
+
+p, h1, div, input {
+  margin: 0px;
+  padding: 0px;
   color: #fff;
   text-decoration: none;
 }
+
 html {
   min-width: min-content;
   min-height: min-content;
@@ -68,7 +74,13 @@ body {
   width: *;
   flow: horizontal;
   border-bottom: 1px solid red;
+  vertical-align: middle;
 }
+
+#header > h2 {
+  vertical-align: middle;
+}
+
 #main-content {
   display:inline-block;
   width:*;
@@ -127,11 +139,14 @@ body {
   height: 40px;
   padding-left: 20px;
   padding-right: 20px;
-  
+}
+#menuentry > p {
+  vertical-align: middle;
 }
 
 #menuentry:hover {
-  height: 36px;
+  margin-top:4px;
+  height: 32px;
   background-color: #050a0f;
   border-bottom: 4px solid red;
 }

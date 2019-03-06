@@ -59,7 +59,7 @@
     vlist << event dblclick $(tr) {
       stdout.println("dblclick", vlist.tbody.currentIndex)
       stdout.println(vlist.value[vlist.tbody.currentIndex]["data"].IP + ":" + vlist.value[vlist.tbody.currentIndex]["data"].Port);
-      await refreshMirrors();
+      refreshMirrors();
       stdout.println(vlist.value[vlist.tbody.currentIndex]["data"].IP + ":" + vlist.value[vlist.tbody.currentIndex]["data"].Port);
     }
 
@@ -103,13 +103,12 @@
 <body>
 <include src="menubar.htm" />
 <div id="flow-container">
-  <div class="top-margin" style="display: inline-block; margin:auto; max-width:1600px;">
+  <div class="top-margin" style="display: inline-block; margin:auto; max-width:1600px; background-image: url(images/RenX_Logo.png); background-position: center; background-repeat: stretch keep-ratio;">
     <div #IGN-container style="flow:vertical;vertical-align:middle;">
       <p>WELCOME</p>
       <h1>SonnyX</h1>
     </div>
-    <div #RenX-container style="display:inline-block;text-align:center;width:*;height:*;background-image: url(images/RenX_Logo.png); background-position: center; background-repeat: stretch keep-ratio;">
-    </div>
+    <div style="width:*;"></div>
     <div #Ver-container style="flow:vertical;text-align:right;vertical-align:middle;">
       <p>Version</p>
       <h1>5.367</h1>
