@@ -8,12 +8,13 @@
 <script type="text/tiscript">
   include "menubar.tls";
   function refreshMirrors() {
-    var future = promise();
+    stdout.println("RefreshMirrors");
     var rqp = { 
       type: #get, 
-      url: "http://serverlist.renegade-x.com/servers.jsp", 
+      url: "http://serverlist.renegade-x.com/servers.jsp",
+      output:#json,
       success: function(result, status) {
-        stdout.println("Got a result from #get");
+        stdout.println("Got a result from #get (refreshMirrors)");
         var records = new Array(result.length);
         for (var i=0; i<result.length; i++) {
           records[i] = {
@@ -35,38 +36,37 @@
         stdout.println("also got this far");
         stdout.println(vlist.tbody.currentIndex);
         stdout.println("but not this far");
-        future(true, records);
+
+
+        vlist.tbody.currentIndex = 0;
+        vlist << event change {
+          stdout.println("change", vlist.tbody.currentIndex)
+        }
+
+        vlist << event dblclick $(tr) {
+          stdout.println("dblclick", vlist.tbody.currentIndex)
+          stdout.println(vlist.value[vlist.tbody.currentIndex]["data"].IP + ":" + vlist.value[vlist.tbody.currentIndex]["data"].Port);
+          refreshMirrors();
+          stdout.println(vlist.value[vlist.tbody.currentIndex]["data"].IP + ":" + vlist.value[vlist.tbody.currentIndex]["data"].Port);
+        }
+
+        vlist << event click $(th.sortable) 
+        {
+          this.sortVlist();
+        }
       },
       onerror: function(data, status) {
         stdout.println("Got a error from #get");
-        promise.resolve(false, data);
       },
       returns: true,
     };
-    View.request(rqp);
-    return future;
+    return View.request(rqp);
   }
 
-  async function self.ready() {
+  function self.ready() {
     stdout.println("frontpage loaded");
     var vlist = $(table);
-    await refreshMirrors();
-    vlist.tbody.currentIndex = 0;
-    vlist << event change {
-      stdout.println("change", vlist.tbody.currentIndex)
-    }
-
-    vlist << event dblclick $(tr) {
-      stdout.println("dblclick", vlist.tbody.currentIndex)
-      stdout.println(vlist.value[vlist.tbody.currentIndex]["data"].IP + ":" + vlist.value[vlist.tbody.currentIndex]["data"].Port);
-      refreshMirrors();
-      stdout.println(vlist.value[vlist.tbody.currentIndex]["data"].IP + ":" + vlist.value[vlist.tbody.currentIndex]["data"].Port);
-    }
-
-    vlist << event click $(th.sortable) 
-    {
-      this.sortVlist();
-    }
+    refreshMirrors();
   }
 
   function sortVlist() {

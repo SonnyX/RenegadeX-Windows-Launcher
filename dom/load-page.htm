@@ -2,20 +2,89 @@
 <head>
 <title>Minimalistic Sciter demo</title>
 <style>
+@import url(news.css);
 @import url(general.css);
+#patch-container {
+  display:inline-block;
+  max-width: 700px;
+  margin: auto;
+  width: *;
+  background-color: #0d172190;
+  height: *;
+}
+img {
+  max-width: 700px;
+}
 </style>
 <script type="text/tiscript">
   include "menubar.tls";
   function self.ready() {
-    view.check_update(onDone);
-    
+    view.check_update(onDone, onErr);
   }
-  function onDone(url) {
-    view.load(self.url(url));
+  function onDone(update, skipDownloadQuestion) {
+    stdout.println("onDone");
+    if ( update ) {
+      if ( skipDownloadQuestion ) {
+        $(#load-container).load(self.url("download.htm"), false);
+        view.start_download(onProgress, onDone);
+      } else {
+        $(#load-container).load(self.url("update-available.htm"), false);
+      }
+      getFeed();
+    } else {
+      view.load(self.url("frontpage.htm"));
+    }
+  }
+  function onErr(err) {
+    stdout.println(err);
+  }
+
+  function onProgress(progress) {
+    if ( progress["hash"][1] != 0 ) {
+      $(#hash-bar > #progress-bar).style["width"] = (progress["hash"][0]*100 / progress["hash"][1]) + "%";
+    }
+    if ( progress["download"][1] != 0 ) {
+      $(#download-bar > #progress-bar).style["width"] = (progress["download"][0]*100 / progress["download"][1]) + "%";
+    }
+    if ( progress["patch"][1] != 0 ) {
+      $(#patch-bar > #progress-bar).style["width"] = (progress["patch"][0]*100 / progress["patch"][1]) + "%";
+    }
+  }
+  function answerDownload(accepted) {
+    if ( accepted ) {
+      $(#load-container).load(self.url("download.htm"), false);
+      view.start_download(onProgress);
+    } else {
+      view.load(self.url("frontpage.htm"));
+    }
+  }
+  function getFeed() {
+    var rqp = { 
+      type: #get, 
+      url: "https://renegade-x.com/forums/forum/7-news.xml",
+      noCache: true,
+      success: function(result, status) {
+        stdout.println("Got a result from #get");
+        var scanner = new XMLScanner(result);
+        var depth = 0;
+        while:loop (var token = scanner.token())
+          switch( token )
+          {
+            case XMLScanner.EOF:            throw String.$(XML error at line {scanner.lineNo}, <{tag} tag is not closed );
+            case XMLScanner.ERROR:          throw String.$(XML error at line {scanner.lineNo});
+            case XMLScanner.CDATA:          $(#news-container).html = scanner.value;  return; 
+          }
+      },
+      onerror: function(err, status) {
+        stdout.println("Got a error from #get: " + err.data.response);
+      },
+      returns: true,
+    };
+    return view.request(rqp);
   }
 </script>
 </head>
-<body>
+<body model="Data">
 <div id="frame-header">
   <div style="width:*;height:40px;" role="window-caption">
   </div>
@@ -26,7 +95,11 @@
     <div style="width: 10px"><picture /></div>
   </div>
 </div>
-
+<div #overlay style="position:fixed; width:*;height:100%; background-color: #ffffff70; visibility:hidden;">
+  <div #message-box style="width:400px; height: 400px; margin:auto;">
+    An error has occurred!
+  </div>
+</div>
 <div id="flow-container">
   <div class="top-margin"></div>
   <div class="horizontal-margin"></div>

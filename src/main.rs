@@ -21,7 +21,7 @@ use std::ops::Deref;
 use sciter::{Value, Element, HELEMENT, host, utf};
 use sciter::dom::event::*;
 
-use renegadex_patcher::{Downloader,Progress};
+use renegadex_patcher::{Downloader,Progress,Update, traits::Error};
 use traits::JsonExtend;
 use xml::reader::{EventReader, XmlEvent};
 use ini::Ini;
@@ -29,39 +29,81 @@ use ini::Ini;
 struct Handler {
   root: Option<sciter::Element>,
   patcher: Arc<Mutex<Downloader>>,
+  progress: Arc<Mutex<Progress>>,
   update_available: Arc<Mutex<Option<bool>>>,
 }
 
 impl Handler {
-  fn check_update(&self, done: sciter::Value) -> bool {
+  fn check_update(&self, done: sciter::Value, error: sciter::Value) -> bool {
     let mut patcher = self.patcher.clone();
 		std::thread::spawn(move || {
-      let mut patcher = patcher.lock().unwrap();
-      patcher.retrieve_mirrors();
-      let mut update_available = patcher.update_available();
-      if update_available {
-        println!("Update available");
-        done.call(None, &make_args!("update.htm"), None).unwrap();
-      } else {
-        println!("No update available");
-        done.call(None, &make_args!("frontpage.htm"), None).unwrap();
+      let check_update = || -> Result<(), Error> {
+        let update_available : Update;
+        {
+          let mut patcher = patcher.lock().unwrap();
+          patcher.retrieve_mirrors()?;
+          update_available = patcher.update_available()?;
+        }
+        match update_available {
+          Update::UpToDate => {
+            println!("No update available");
+            done.call(None, &make_args!(false, false), None).unwrap();
+          },
+          Update::Resume | Update::Full => {
+            println!("Resuming download!");
+            done.call(None, &make_args!(true, true), None).unwrap();
+          },
+          Update::Delta => {
+            println!("Update available");
+            done.call(None, &make_args!(true, false), None).unwrap();
+          }
+        };
+        Ok(())
+		  };
+      let result : Result<(),Error> = check_update();
+      if result.is_err() {
+        println!("{:#?}", result);
+        //error.call(None, &make_args!(result.unwrap_err()), None);
       }
-		});
+    });
 		true
   }
-  fn poll_progress(&self, callback: sciter::Value) -> bool {
-    let progress : Arc<Mutex<Progress>> = self.patcher.lock().unwrap().get_progress();
+
+  fn start_download(&self, callback: sciter::Value, callback_done: sciter::Value) -> bool {
+    let mut progress = self.patcher.clone().lock().unwrap().get_progress();
 		std::thread::spawn(move || {
-      callback.call(None, &make_args!("update.htm"), None).unwrap();
+      let mut notFinished = true;
+      while notFinished {
+        std::thread::sleep(std::time::Duration::from_millis(500));
+        {
+          let progress_locked = progress.lock().unwrap();
+          let mut me : Value = format!(
+            "{{\"hash\": [{},{}],\"download\": [{},{}],\"patch\": [{},{}]}}",
+            progress_locked.hashes_checked.0.clone(),
+            progress_locked.hashes_checked.1.clone(),
+            progress_locked.download_size.0.clone()/10000,
+            progress_locked.download_size.1.clone()/10000,
+            progress_locked.patch_files.0.clone(),
+            progress_locked.patch_files.1.clone()
+          ).parse().unwrap();
+          notFinished = !progress_locked.finished_patching;
+          callback.call(None, &make_args!(me), None).unwrap();
+        }
+      }
 		});
-		true
+    let mut patcher = self.patcher.clone();
+    std::thread::spawn(move || {
+      patcher.lock().unwrap().download();
+      callback_done.call(None, &make_args!(false,false), None).unwrap();
+    });
+    true
   }
 }
 
 impl sciter::EventHandler for Handler {
 	dispatch_script_call! {
-		fn check_update(Value);
-    fn poll_progress(Value);
+		fn check_update(Value, Value);
+    fn start_download(Value, Value);
   }
 }
 
@@ -99,9 +141,10 @@ fn main() {
   let mut downloader = Downloader::new();
   downloader.set_location(game_location.to_string());
   downloader.set_version_url(version_url.to_string());
+  let progress = downloader.get_progress();
   let patcher : Arc<Mutex<Downloader>> = Arc::new(Mutex::new(downloader));
   let update_available : Arc<Mutex<Option<bool>>> = Arc::new(Mutex::new(None));
-  frame.event_handler(Handler{root:None, patcher: patcher.clone(), update_available: update_available.clone()});
+  frame.event_handler(Handler{root:None, patcher: patcher.clone(), progress: progress, update_available: update_available.clone()});
   current_path.push("dom/load-page.htm");
   frame.load_file(current_path.to_str().unwrap());
   frame.run_app();

@@ -131,7 +131,7 @@ body {
   .prev 
   { 
     border:1dip solid #AAA; 
-    foreground-image:url( images/sb-v-scroll-prev.png ); 
+    foreground-image: none;
     foreground-position:50% 50%;
     foreground-repeat:no-repeat;
     height:15dip;
@@ -140,7 +140,7 @@ body {
   .next 
   { 
     border:1dip solid #AAA; 
-    foreground-image:url( images/sb-v-scroll-next.png ); 
+    foreground-image: none; 
     foreground-position:50% 50%;
     foreground-repeat:no-repeat; 
     height:15dip;
@@ -150,7 +150,7 @@ body {
   .next-page, 
   .prev-page 
   { 
-    background-image:url( images/sb-scroll-back.png ); 
+    background-image: none; 
     background-position:5 5 5 5; /*left top right bottom offsets*/
     background-repeat:expand; 
   }
@@ -160,7 +160,7 @@ body {
     background:red; 
     //padding:0 4dip 0 4dip;
     background-clip:content-box;
-    foreground-image:url( images/sb-scroll-slider.png ); 
+    foreground-image: none; 
     foreground-position:50% 50%;
     foreground-repeat:no-repeat; 
   }
@@ -170,7 +170,7 @@ body {
   
   .base:disabled
   {
-    background-image:url( images/sb-scroll-base.png ); 
+    background-image: none; 
     background-repeat:repeat; 
     background-position:0 0 0 0;
   }
@@ -200,10 +200,10 @@ img {
 <script type="text/tiscript">
   include "menubar.tls";
   function getFeed() {
-    var future = promise();
     var rqp = { 
       type: #get, 
-      url: "https://renegade-x.com/forums/forum/7-news.xml", 
+      url: "https://renegade-x.com/forums/forum/7-news.xml",
+      noCache: true,
       success: function(result, status) {
         stdout.println("Got a result from #get");
         var scanner = new XMLScanner(result);
@@ -215,18 +215,18 @@ img {
             case XMLScanner.ERROR:          throw String.$(XML error at line {scanner.lineNo});
             case XMLScanner.CDATA:          $(#news-container).html = scanner.value;  return; 
           }
-        stdout.println(content);
       },
-      onerror: function(data, status) {
-        stdout.println("Got a error from #get");
+      onerror: function(err, status) {
+        stdout.println("Got a error from #get: " + err.data.response);
       },
       returns: true,
     };
-    View.request(rqp);
-    return future;
+    return view.request(rqp);
   }
-  async function self.ready() {
-    await getFeed();
+  function self.ready() {
+    stdout.println("You loaded update.htm!");
+    getFeed();
+    view.load(self.url("frontpage.htm"));
   }
 </script>
 </head>
