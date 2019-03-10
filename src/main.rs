@@ -1,4 +1,4 @@
-#![windows_subsystem="windows"]
+//#![windows_subsystem="windows"]
 
 extern crate reqwest;
 extern crate json;
@@ -10,32 +10,20 @@ extern crate ini;
 
 mod traits;
 
-use std::env::args;
-
-use std::{process,io};
-use std::fs::File;
 use std::sync::{Arc,Mutex};
-use std::rc::{Rc, Weak};
-use std::ops::Deref;
 
-use sciter::{Value, Element, HELEMENT, host, utf};
-use sciter::dom::event::*;
+use sciter::Value;
 
-use renegadex_patcher::{Downloader,Progress,Update, traits::Error};
-use traits::JsonExtend;
-use xml::reader::{EventReader, XmlEvent};
+use renegadex_patcher::{Downloader,Update, traits::Error};
 use ini::Ini;
 
 struct Handler {
-  root: Option<sciter::Element>,
   patcher: Arc<Mutex<Downloader>>,
-  progress: Arc<Mutex<Progress>>,
-  update_available: Arc<Mutex<Option<bool>>>,
 }
 
 impl Handler {
   fn check_update(&self, done: sciter::Value, error: sciter::Value) -> bool {
-    let mut patcher = self.patcher.clone();
+    let patcher = self.patcher.clone();
 		std::thread::spawn(move || {
       let check_update = || -> Result<(), Error> {
         let update_available : Update;
@@ -62,22 +50,23 @@ impl Handler {
 		  };
       let result : Result<(),Error> = check_update();
       if result.is_err() {
-        println!("{:#?}", result);
-        //error.call(None, &make_args!(result.unwrap_err()), None);
+        //println!("{:#?}", result.unwrap_err().description());
+        use std::error::Error;
+        error.call(None, &make_args!(result.unwrap_err().description()), None).unwrap();
       }
     });
 		true
   }
 
-  fn start_download(&self, callback: sciter::Value, callback_done: sciter::Value) -> bool {
-    let mut progress = self.patcher.clone().lock().unwrap().get_progress();
+  fn start_download(&self, callback: sciter::Value, callback_done: sciter::Value, error: sciter::Value) -> bool {
+    let progress = self.patcher.clone().lock().unwrap().get_progress();
 		std::thread::spawn(move || {
-      let mut notFinished = true;
-      while notFinished {
+      let mut not_finished = true;
+      while not_finished {
         std::thread::sleep(std::time::Duration::from_millis(500));
         {
           let progress_locked = progress.lock().unwrap();
-          let mut me : Value = format!(
+          let me : Value = format!(
             "{{\"hash\": [{},{}],\"download\": [{},{}],\"patch\": [{},{}]}}",
             progress_locked.hashes_checked.0.clone(),
             progress_locked.hashes_checked.1.clone(),
@@ -86,15 +75,22 @@ impl Handler {
             progress_locked.patch_files.0.clone(),
             progress_locked.patch_files.1.clone()
           ).parse().unwrap();
-          notFinished = !progress_locked.finished_patching;
+          not_finished = !progress_locked.finished_patching;
           callback.call(None, &make_args!(me), None).unwrap();
         }
       }
 		});
-    let mut patcher = self.patcher.clone();
+    let patcher = self.patcher.clone();
     std::thread::spawn(move || {
-      patcher.lock().unwrap().download();
-      callback_done.call(None, &make_args!(false,false), None).unwrap();
+      match patcher.lock().unwrap().download() {
+        Ok(()) => {
+          callback_done.call(None, &make_args!(false,false), None).unwrap();
+        },
+        Err(e) => {
+          use std::error::Error;
+          error.call(None, &make_args!(e.description()), None).unwrap();
+        }
+      };
     });
     true
   }
@@ -103,7 +99,7 @@ impl Handler {
 impl sciter::EventHandler for Handler {
 	dispatch_script_call! {
 		fn check_update(Value, Value);
-    fn start_download(Value, Value);
+    fn start_download(Value, Value, Value);
   }
 }
 
@@ -141,16 +137,14 @@ fn main() {
   let mut downloader = Downloader::new();
   downloader.set_location(game_location.to_string());
   downloader.set_version_url(version_url.to_string());
-  let progress = downloader.get_progress();
   let patcher : Arc<Mutex<Downloader>> = Arc::new(Mutex::new(downloader));
-  let update_available : Arc<Mutex<Option<bool>>> = Arc::new(Mutex::new(None));
-  frame.event_handler(Handler{root:None, patcher: patcher.clone(), progress: progress, update_available: update_available.clone()});
+  frame.event_handler(Handler{patcher: patcher.clone()});
   current_path.push("dom/load-page.htm");
   frame.load_file(current_path.to_str().unwrap());
   frame.run_app();
 }
 
-
+/*
 pub struct Launcher {
   //for example: ~/RenegadeX/
   RenegadeX_location: Option<String>,
@@ -207,3 +201,4 @@ impl Launcher {
     }
   }
 }
+*/

@@ -22,13 +22,19 @@ img {
     view.check_update(onDone, onErr);
   }
   function onDone(update, skipDownloadQuestion) {
-    stdout.println("onDone");
     if ( update ) {
       if ( skipDownloadQuestion ) {
         $(#load-container).load(self.url("download.htm"), false);
-        view.start_download(onProgress, onDone);
+        view.start_download(onProgress, onDone, onErr);
       } else {
         $(#load-container).load(self.url("update-available.htm"), false);
+        $(button#update).onClick = function() {
+          $(#load-container).load(self.url("download.htm"), false);
+          view.start_download(onProgress, onDone, onErr);
+        }
+        $(button#cancel).onClick = function() {
+          view.load(self.url("frontpage.htm"));
+        }
       }
       getFeed();
     } else {
@@ -36,6 +42,8 @@ img {
     }
   }
   function onErr(err) {
+    $(#message-box).html = err;
+    $(#overlay).style["visibility"] = "visible";
     stdout.println(err);
   }
 
@@ -95,8 +103,8 @@ img {
     <div style="width: 10px"><picture /></div>
   </div>
 </div>
-<div #overlay style="position:fixed; width:*;height:100%; background-color: #ffffff70; visibility:hidden;">
-  <div #message-box style="width:400px; height: 400px; margin:auto;">
+<div #overlay style="position:fixed; width:*;height:100%; background-color: #ffffff70; visibility:hidden; vertical-align: middle; ">
+  <div #message-box style="width:400px; height: 400px; margin:auto; background-color: #c0c;">
     An error has occurred!
   </div>
 </div>

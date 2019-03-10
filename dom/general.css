@@ -1,3 +1,5 @@
+@import url(fonts.css);
+
 html, body, button, input, table, thead, tbody, tr, th, td {
   background-gradient: none;
   background-color: none;
@@ -32,8 +34,8 @@ body {
             2 5 3,
             4 4 4);
   height:*;
-  overflow-y: auto;
-  overflow-x: auto;
+  min-width: min-content;
+  min-height: min-content;
 }
 .horizontal-margin {
   display:inline-block;
@@ -88,6 +90,8 @@ body {
   max-width:1600px;
   flow: horizontal;
   margin: auto;
+  min-width: min-content;
+  min-height: min-content;
 }
 #server-container {
   width: 530px;
