@@ -28,6 +28,12 @@ namespace Emu {
       }
     }
   }
+  function enter() {
+    this << event keypress (evt) {
+      if ( evt.keyCode != Event.VK_RETURN ) return;
+      eval.call(this, this.attributes["enter"]);
+    }
+  }
 }
 
 function alert(msg) {

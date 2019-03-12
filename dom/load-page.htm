@@ -50,12 +50,16 @@ img {
   function onProgress(progress) {
     if ( progress["hash"][1] != 0 ) {
       $(#hash-bar > #progress-bar).style["width"] = (progress["hash"][0]*100 / progress["hash"][1]) + "%";
+      $(#hash-bar > p).html = progress["hash"][0] + "/" + progress["hash"][1];
     }
     if ( progress["download"][1] != 0 ) {
       $(#download-bar > #progress-bar).style["width"] = (progress["download"][0]*100 / progress["download"][1]) + "%";
+      $(#download-bar > p).html = progress["download"][0]/100 + " MB out of " + progress["download"][1]/100 + " MB Downloaded";
+
     }
     if ( progress["patch"][1] != 0 ) {
       $(#patch-bar > #progress-bar).style["width"] = (progress["patch"][0]*100 / progress["patch"][1]) + "%";
+      $(#patch-bar > p).html = "Patched "+progress["patch"][0]+" out of "+progress["patch"][1]+" files";
     }
   }
   function answerDownload(accepted) {
@@ -69,7 +73,7 @@ img {
   function getFeed() {
     var rqp = { 
       type: #get, 
-      url: "https://renegade-x.com/forums/forum/7-news.xml",
+      url: "https://renegade-x.com/rss/1-recent-news.xml",
       noCache: true,
       success: function(result, status) {
         stdout.println("Got a result from #get");

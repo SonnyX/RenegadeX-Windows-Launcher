@@ -7,6 +7,7 @@ extern crate sciter;
 extern crate renegadex_patcher;
 extern crate xml;
 extern crate ini;
+extern crate irc;
 
 mod traits;
 
@@ -16,9 +17,12 @@ use sciter::Value;
 
 use renegadex_patcher::{Downloader,Update, traits::Error};
 use ini::Ini;
+use irc::client::prelude::*;
 
 struct Handler {
   patcher: Arc<Mutex<Downloader>>,
+  irc_client: Arc<Mutex<Option<irc::client::IrcClient>>>,
+  irc_callback: Arc<Mutex<Option<sciter::Value>>>,
 }
 
 impl Handler {
@@ -94,12 +98,30 @@ impl Handler {
     });
     true
   }
+
+  fn send_irc_message(&self, message: sciter::Value) -> bool {
+    match *self.irc_client.lock().unwrap() {
+      Some(ref irc_client) => irc_client.send_privmsg("#renegadex", message.as_string().unwrap()).unwrap(),
+      None => {}
+    }
+    true
+  }
+
+  fn register_irc_callback(&self, callback: sciter::Value) -> bool {
+    println!("registering irc_callback: {:#?}", &callback);
+    let mut irc_callback = self.irc_callback.lock().unwrap();
+    *irc_callback = Some(callback.clone());
+    true
+  }
+
 }
 
 impl sciter::EventHandler for Handler {
 	dispatch_script_call! {
 		fn check_update(Value, Value);
     fn start_download(Value, Value, Value);
+    fn send_irc_message(Value); //Parameter is a string
+    fn register_irc_callback(Value); //Register's the callback
   }
 }
 
@@ -138,9 +160,48 @@ fn main() {
   downloader.set_location(game_location.to_string());
   downloader.set_version_url(version_url.to_string());
   let patcher : Arc<Mutex<Downloader>> = Arc::new(Mutex::new(downloader));
-  frame.event_handler(Handler{patcher: patcher.clone()});
+  let client_clone : Arc<Mutex<Option<irc::client::IrcClient>>> = Arc::new(Mutex::new(None));
+  let irc_messages : Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
+  let irc_callback : Arc<Mutex<Option<sciter::Value>>> = Arc::new(Mutex::new(None));
+  frame.event_handler(Handler{patcher: patcher.clone(), irc_client: client_clone.clone(), irc_callback: irc_callback.clone()});
   current_path.push("dom/load-page.htm");
   frame.load_file(current_path.to_str().unwrap());
+
+  let irc_thread = std::thread::spawn(move || {
+    let config = Config {
+      nickname: Some("SonnyX".to_owned()),
+      server: Some("irc.cncirc.net".to_owned()),
+      channels: Some(vec!["#renegadex".to_owned()]),
+      use_ssl: Some(true),
+      ..Config::default()
+    };
+    let mut reactor = IrcReactor::new().unwrap();
+    let client = reactor.prepare_client_and_connect(&config).unwrap();
+    client.identify().unwrap();
+    {
+      let mut client_lock = client_clone.lock().unwrap();
+      *client_lock = Some(client.clone());
+    }
+    reactor.register_client_with_handler(client, move |client, event| {
+      if let Command::PRIVMSG(channel, message) = &event.command {
+        println!("{:#?}", &channel);
+        if channel == "#renegadex" {
+          let mut ui_option = irc_callback.lock().unwrap();
+          match *ui_option {
+            Some(ref ui) => {
+              ui.call(None, &make_args!(message.as_str()), None).unwrap();
+            },
+            None => {
+              println!("{:#?}", &message);
+            }
+          }
+        }
+      }
+      // And here we can do whatever we want with the messages.
+      Ok(())
+    });
+    reactor.run().unwrap();
+  });
   frame.run_app();
 }
 

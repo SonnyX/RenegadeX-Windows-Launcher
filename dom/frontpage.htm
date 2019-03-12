@@ -2,8 +2,8 @@
 <head>
 <title>Minimalistic Sciter demo</title>
 <style>
-@import url(general.css);
-@import url(vgrid.css);
+  @import url(general.css);
+  @import url(vgrid.css);
 </style>
 <script type="text/tiscript">
   include "menubar.tls";
@@ -65,8 +65,20 @@
 
   function self.ready() {
     stdout.println("frontpage loaded");
+    view.register_irc_callback(onIrcMessage);
     var vlist = $(table);
     refreshMirrors();
+  }
+
+  function onIrcMessage(message) {
+    stdout.println(message);
+    $(#chat-display).html += message;
+  }
+
+  function sendIrcMessage(message) {
+    stdout.println(message.value);
+    view.send_irc_message(message.value);
+    message.value = undefined;
   }
 
   function sortVlist() {
@@ -100,7 +112,7 @@
   }
 </script>
 </head>
-<body>
+<body model="dom">
 <include src="menubar.htm" />
 <div id="flow-container">
   <div class="top-margin" style="display: inline-block; margin:auto; max-width:1600px; background-image: url(images/RenX_Logo.png); background-position: center; background-repeat: stretch keep-ratio;">
@@ -111,7 +123,7 @@
     <div style="width:*;"></div>
     <div #Ver-container style="flow:vertical;text-align:right;vertical-align:middle;">
       <p>Version</p>
-      <h1>5.367</h1>
+      <h1>5.373</h1>
     </div>
   </div>
   <div class="horizontal-margin"></div>
@@ -120,10 +132,10 @@
   <div id="main-content">
     <div #server-container>
       <div #header>
-        <h2>SERVERS</h2>
-        <p>44 Players Online</p>
-        <div #search-bar>
-          //some text-entry or smth.
+        <h1>SERVERS</h1>
+        <p#players>44 Players Online</p>
+        <div #search-container style="margin-left:auto;">
+          Filter <div #search-bar><picture class="centered" src="images/Close.svg" style="width: 8px; height: 35px; margin-left: 7px; margin-right: 7px;"/><input type="text" novalue="Search" style="width:*; margin-right: 5px;"/></div> refresh
         </div>
         <div #refresh-button>
           <picture />
@@ -148,16 +160,53 @@
         </tbody>
       </table>
       <div #server-info>
-        lol
+        <div style="margin-right: 10px;">
+          <picture src="images/defaultBanner.png" style="width:*;"></picture>
+          <h1 style="margin-top: 10px; margin-bottom: 10px; font-size: 14px; color: #CE5135;">FPI - FAIRPLAY INC</h1>
+          <div style="width:*; height:*; flow:horizontal;">
+            <div style="width:*; height:*; flow:vertical;">
+              <p>Game Length: 0</p>
+              <p>Vehicle Limit: 8</p>
+              <p>Player Limit: 64</p>
+              <p>Mine Limit: 24</p>
+              <p>Game Mode: CNC</p>
+            </div>
+            <div style="width:*; height:*; flow:vertical;">
+              <p>Game Length: 0</p>
+              <p>Vehicle Limit: 8</p>
+              <p>Player Limit: 64</p>
+              <p>Mine Limit: 24</p>
+              <p>Game Mode: CNC</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-left: 10px;">
+          <picture src="images/cnc-field.png" style="width:*;" />
+          <h1 style="margin-top: 10px; margin-bottom: 10px; font-size: 14px; color: #CE5135;">MAP: FIELD X</h1>
+          <div style="flow: horizontal;">
+            <div style="flow: vertical">
+              <p>GDI: 9742</p>
+              <p>NOD: 8543</p>
+            </div>
+            <div style="margin-left: 20px; flow: vertical">
+              <p>19 players</p>
+              <p>19 players</p>
+            </div>
+          </div>
+        </div>
+        <button style="margin-top: 20px;"><h3>JOIN SERVER</h3></button>
       </div>
     </div>
+
+
     <div #chat-container>
       <div #header>
-        <h1>CHAT LOBBY</h1>
+        <h1>LOBBY CHAT</h1>
       </div>
-      <div #chat-display> </div>
+      <div #chat-display readonly="true" spellcheck="false" style="behavior: htmlarea;">
+      </div>
       <div #reply-chat>
-        <input type="text">
+        <input type="text" novalue="Type here..." enter="sendIrcMessage(this)" />
       </div>
     </div>
   </div>

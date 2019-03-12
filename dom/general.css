@@ -1,6 +1,10 @@
 @import url(fonts.css);
 
-html, body, button, input, table, thead, tbody, tr, th, td {
+* {
+  vertical-scrollbar: my-v-scrollbar;
+}
+
+html, body, button, textarea, input, table, thead, tbody, tr, th, td {
   background-gradient: none;
   background-color: none;
   background-image: none;
@@ -68,18 +72,21 @@ body {
   background-color: #0d1721;
   height: 40px;
   width: *;
+  min-width: min-content;
   flow: horizontal;
 }
+
+
 #header {
   display:block;
   height: 40px;
   width: *;
   flow: horizontal;
-  border-bottom: 1px solid red;
+  border-bottom: 2px solid #CE5135;
   vertical-align: middle;
 }
 
-#header > h2 {
+#header > * {
   vertical-align: middle;
 }
 
@@ -98,13 +105,59 @@ body {
   background-color: #0d172190;
   height: *;
 }
-#server-info {
-  width: *;
-  background-color: #0d172190;
-  height: 100px;
+
+#server-container > table {
+  margin:20px;
 }
+
+#search-container {
+  height:40px;
+  vertical-align: middle;
+}
+#refresh-button {
+  height: 40px;
+  width: 10px;
+}
+
+#search-bar {
+  display: inline-block;
+  border-radius: 7px;
+  background-color: #212A31;
+  height:25px;
+  width: 150px;
+  flow: horizontal;
+  vertical-align: middle;
+
+}
+
+#server-info {
+  padding:20px;
+  width: *;
+  background-color: #06090E90;
+  min-height: 100px;
+  flow:grid(1 2,
+            3 3);
+}
+
+#server-info > * {
+  width: *;
+  height: *;
+}
+
+#server-info > button {
+  background-color: #CE5135;
+  vertical-align: middle;
+  color: #fff;
+  height: 40px;
+}
+
+button > * {
+  vertical-align: middle;
+  height: *;
+}
+
 #chat-container {
-  min-width: 400px;
+  min-width: 200px;
   width: *;
   background-color: #0d172190;
   height: *;
@@ -143,16 +196,18 @@ body {
   height: 40px;
   padding-left: 20px;
   padding-right: 20px;
+  min-width: min-content;
 }
 #menuentry > p {
   vertical-align: middle;
+  min-width: min-content;
 }
 
 #menuentry:hover {
   margin-top:4px;
   height: 32px;
-  background-color: #050a0f;
-  border-bottom: 4px solid red;
+  //background-color: #050a0f;
+  border-bottom: 4px solid #CE5135;
 }
 
 #menuentry > p {
@@ -165,27 +220,24 @@ body {
 #chat-display {
   height: *;
   width:*;
+  overflow-y: auto;
+  margin: 10px;
 }
 #reply-chat {
-  height: 40px;
+  height: 46px;
   width:*;
   background-color: #06090E;
 }
 #reply-chat > input {
-  margin: 5px;
+  margin: 8px;
   height: 30px;
   width:*;
   background-color: #212A31;
   padding-left: 5px;
   padding-right: 5px;
+  border-radius: 8px;
 }
-#search-bar {
-  height:40px;
-}
-#refresh-button {
-  height: 40px;
-  width: 10px;
-}
+
 /*
 #menuentry:selected {
   height: 36px;
@@ -195,3 +247,40 @@ body {
 
 [src-hover] {aspect: "Emu.srchover";}
 [custom-role] {aspect: "Emu.role";}
+[enter] {aspect: "Emu.enter";}
+
+@set my-v-scrollbar
+{
+  .prev, .next
+  { 
+    display:none;
+  }
+  
+  .base,
+  .next-page, 
+  .prev-page 
+  { 
+    display:none;
+  }
+  .slider 
+  {
+    background:#CE5135;
+  }
+  
+  .next:disabled, .slider:disabled, 
+  .prev:disabled  { height:0; border:none; foreground-image:none; }
+  
+  .base:disabled
+  {
+    background-image: none; 
+    background-repeat:repeat; 
+    background-position:0 0 0 0;
+  }
+    
+  .slider:hover { background-color: #CE5135; }
+  
+  .slider:active { background-color: #CE5135; }
+  
+  .base { width: 10px; height: 0px; padding-left: 10px; padding-right: 10px;} /* explicit declaration of its width */
+  .corner { background-color: transparent; }
+}
