@@ -25,7 +25,7 @@
     size:*;
   }
   
-  th { behavior:clickable; padding:2dip 4dip 4dip 4dip; }
+  th { behavior:clickable; padding:2px 4px 4px 4px; }
   
   td {
     white-space: nowrap;

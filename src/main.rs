@@ -1,4 +1,4 @@
-#![windows_subsystem="windows"]
+#![windows_subsystem="console"]
 
 extern crate reqwest;
 extern crate json;
@@ -8,8 +8,14 @@ extern crate renegadex_patcher;
 extern crate xml;
 extern crate ini;
 extern crate irc;
+extern crate single_instance;
+extern crate chrono;
+#[cfg(unix)]
+extern crate gag;
 
 mod traits;
+#[cfg(windows)]
+pub mod redirect;
 
 use std::sync::{Arc,Mutex};
 
@@ -18,6 +24,38 @@ use sciter::Value;
 use renegadex_patcher::{Downloader,Update, traits::Error};
 use ini::Ini;
 use irc::client::prelude::*;
+use single_instance::SingleInstance;
+
+#[cfg(windows)]
+fn redirect_std(output_filename: String) {
+  std::thread::spawn(move || {
+    let mut stdout = redirect::stdout().unwrap();
+    //let mut stderr = redirect::stderr().unwrap();
+    let mut stderr = std::io::stderr();
+    use std::io::{Write,Read,Seek};
+    loop {
+      let mut output_file = std::fs::OpenOptions::new().read(true).write(true).create(true).open(output_filename.clone()).unwrap();
+      output_file.seek(std::io::SeekFrom::End(0)).unwrap();
+      let mut buf = Vec::new();
+      stdout.read_to_end(&mut buf).unwrap();
+      //stderr.read_to_end(&mut buf).unwrap();
+      output_file.write_all(&buf).unwrap();
+      stderr.write_all(&buf).unwrap();
+    }
+  });
+}
+
+#[cfg(unix)]
+fn redirect_std(output_filename: String) {
+  let file = std::fs::OpenOptions::new().read(true).write(true).create(true).open(output_filename).unwrap();
+  std::thread::spawn(move || {
+    let mut stdout = gag::Redirect::stdout(file.try_clone().unwrap()).unwrap();
+    let mut stderr = gag::Redirect::stderr(file).unwrap();
+    loop {
+      std::thread::sleep(std::time::Duration::from_millis(500));
+    }
+  });
+}
 
 struct Handler {
   patcher: Arc<Mutex<Downloader>>,
@@ -126,6 +164,12 @@ impl sciter::EventHandler for Handler {
 }
 
 fn main() {
+  let instance = SingleInstance::new("RenegadeX-Launcher").unwrap();
+  assert!(instance.is_single());
+
+  //let output_filename = format!("{}.output", chrono::Utc::now().format("%v_%X")).replace(":", "-");
+  //redirect_std(output_filename);
+
   let conf = match Ini::load_from_file("RenegadeX-Launcher.ini") {
     Ok(conf) => conf,
     Err(_e) => {

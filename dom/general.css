@@ -90,6 +90,10 @@ body {
   vertical-align: middle;
 }
 
+#header > #players {
+  font-size: 11px;
+}
+
 #main-content {
   display:inline-block;
   width:*;
@@ -113,7 +117,9 @@ body {
 #search-container {
   height:40px;
   vertical-align: middle;
+  flow: horizontal;
 }
+
 #refresh-button {
   height: 40px;
   width: 10px;

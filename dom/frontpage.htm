@@ -27,7 +27,6 @@
           };
         }
         var vlist = $(table);
-        stdout.println("got this far");
         if(vlist.value != null) {
           stdout.println(vlist.value);
           stdout.println(vlist.tbody.currentIndex);
@@ -117,8 +116,11 @@
 <div id="flow-container">
   <div class="top-margin" style="display: inline-block; margin:auto; max-width:1600px; background-image: url(images/RenX_Logo.png); background-position: center; background-repeat: stretch keep-ratio;">
     <div #IGN-container style="flow:vertical;vertical-align:middle;">
-      <p>WELCOME</p>
-      <h1>SonnyX</h1>
+      <p>Welcome</p>
+      <h1 style="flow: horizontal; vertical-align: middle;">
+        <picture src="images/EditName.svg" style="width: 17px; height: 35px; margin-left: 7px; margin-right: 7px;"/>
+        Murica! Fuck yeah!
+      </h1>
     </div>
     <div style="width:*;"></div>
     <div #Ver-container style="flow:vertical;text-align:right;vertical-align:middle;">
@@ -135,7 +137,13 @@
         <h1>SERVERS</h1>
         <p#players>44 Players Online</p>
         <div #search-container style="margin-left:auto;">
-          Filter <div #search-bar><picture class="centered" src="images/Close.svg" style="width: 8px; height: 35px; margin-left: 7px; margin-right: 7px;"/><input type="text" novalue="Search" style="width:*; margin-right: 5px;"/></div> refresh
+          Filter 
+          <picture src="images/FilterDown.svg" style="width: 17px; height: 35px; margin-left: 7px; margin-right: 10px;"/>
+          <div #search-bar>
+            <picture class="centered" src="images/Search.svg" style="width: 12px; height: 35px; margin-left: 7px; margin-right: 7px;"/>
+            <input type="text" novalue="Search" style="width:*; height: 15px; margin-right: 5px;"/>
+          </div>
+          <picture src="images/Refresh.svg" style="width: 12px; height: 35px; margin-left: 10px; margin-right:3px;"/>
         </div>
         <div #refresh-button>
           <picture />
@@ -161,7 +169,7 @@
       </table>
       <div #server-info>
         <div style="margin-right: 10px;">
-          <picture src="images/defaultBanner.png" style="width:*;"></picture>
+          <picture src="images/defaultBanner.png" style="width:100%;"></picture>
           <h1 style="margin-top: 10px; margin-bottom: 10px; font-size: 14px; color: #CE5135;">FPI - FAIRPLAY INC</h1>
           <div style="width:*; height:*; flow:horizontal;">
             <div style="width:*; height:*; flow:vertical;">
@@ -181,7 +189,7 @@
           </div>
         </div>
         <div style="margin-left: 10px;">
-          <picture src="images/cnc-field.png" style="width:*;" />
+          <picture src="images/cnc-field.png" style="width:100%;" />
           <h1 style="margin-top: 10px; margin-bottom: 10px; font-size: 14px; color: #CE5135;">MAP: FIELD X</h1>
           <div style="flow: horizontal;">
             <div style="flow: vertical">

@@ -13,6 +13,14 @@ renegadex_patcher = { git = "https://github.com/SonnyX/RenegadeX-patcher-lib" }
 xml-rs = "0.8.0"
 rust-ini = "0.13.0"
 irc = "0.13.6"
+single-instance = "0.1.1"
+chrono = "0.4.6"
+
+[target.'cfg(unix)'.dependencies]
+gag = "0.1.10"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3.6", features = ["winbase", "wincon", "processenv", "handleapi", "namedpipeapi"] }
 
 [target.'cfg(target_os = "windows")'.build-dependencies]
 winres = "0.1.8"
