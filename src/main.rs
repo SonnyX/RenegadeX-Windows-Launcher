@@ -151,7 +151,14 @@ impl Handler {
     *irc_callback = Some(callback.clone());
     true
   }
-
+  fn get_status(&self, callback: sciter::Value) -> bool {
+    let progress = self.patcher.clone().lock().unwrap().get_progress();
+    std::thread::spawn(move || {
+      let progress_locked = progress.lock().unwrap();
+      callback.call(None, &make_args!(progress_locked.finished_patching), None).unwrap();
+    });
+    true
+  }
 }
 
 impl sciter::EventHandler for Handler {
@@ -160,6 +167,7 @@ impl sciter::EventHandler for Handler {
     fn start_download(Value, Value, Value);
     fn send_irc_message(Value); //Parameter is a string
     fn register_irc_callback(Value); //Register's the callback
+    fn get_status(Value);
   }
 }
 
@@ -189,6 +197,7 @@ fn main() {
   let section = conf.section(Some("RenX_Launcher".to_owned())).unwrap();
   let game_location = section.get("GameLocation").unwrap();
   let version_url = section.get("VersionUrl").unwrap();
+  let launcher_theme = section.get("LauncherTheme").unwrap();
 
   let mut current_path = std::env::current_exe().unwrap();
   current_path.pop();
@@ -208,7 +217,7 @@ fn main() {
   let irc_messages : Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
   let irc_callback : Arc<Mutex<Option<sciter::Value>>> = Arc::new(Mutex::new(None));
   frame.event_handler(Handler{patcher: patcher.clone(), irc_client: client_clone.clone(), irc_callback: irc_callback.clone()});
-  current_path.push("dom/load-page.htm");
+  current_path.push(format!("{}/load-page.htm", launcher_theme));
   frame.load_file(current_path.to_str().unwrap());
 
   let irc_thread = std::thread::spawn(move || {

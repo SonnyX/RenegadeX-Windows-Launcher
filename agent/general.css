@@ -82,8 +82,8 @@ body {
   height: 40px;
   width: *;
   flow: horizontal;
-  border-bottom: 2px solid #CE5135;
   vertical-align: middle;
+  background-color: #0C2E3F;
 }
 
 #header > * {
@@ -106,7 +106,7 @@ body {
 }
 #server-container {
   width: 530px;
-  background-color: #0d172190;
+  background-color: rgba(0,7,10,.70);
   height: *;
 }
 
@@ -137,20 +137,36 @@ body {
 }
 
 #server-info {
-  padding:20px;
   width: *;
-  background-color: #06090E90;
+  background-color: #05131b;
+  border-top: 1px solid rgba(53,186,255,.2);
   min-height: 100px;
-  flow:grid(1 2,
-            3 3);
 }
 
-#server-info > * {
+#server-info-title {
+  padding:10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #fff;
+  text-align: center;
+  background: #0C2E3F;
+}
+
+#server-info-body {
+  padding:20px;
+}
+
+#server-info-grid {
+  flow:grid(1 2);
+  width: 100%;
+}
+
+#server-info > *, #server-info-grid > *, #server-info-body > * {
   width: *;
   height: *;
 }
 
-#server-info > button {
+#server-info-body > button {
   background-color: #CE5135;
   vertical-align: middle;
   color: #fff;
@@ -165,7 +181,7 @@ button > * {
 #chat-container {
   min-width: 200px;
   width: *;
-  background-color: #0d172190;
+  background-color: rgba(0,7,10,.70);
   height: *;
   margin-left: 30px;
   flow: vertical;
@@ -232,13 +248,13 @@ button > * {
 #reply-chat {
   height: 46px;
   width:*;
-  background-color: #06090E;
+  background-color: #0C2E3F;
 }
 #reply-chat > input {
   margin: 8px;
   height: 30px;
   width:*;
-  background-color: #212A31;
+  background-color: #05131b;
   padding-left: 5px;
   padding-right: 5px;
   border-radius: 8px;
@@ -257,36 +273,32 @@ button > * {
 
 @set my-v-scrollbar
 {
+  * {
+    background-color: #CE5135;
+  }
   .prev, .next
   { 
-    display:none;
+    //display:none;
   }
   
-  .base,
   .next-page, 
   .prev-page 
   { 
-    display:none;
+    //display:none;
   }
   .slider 
   {
-    background:#CE5135;
+    background-color:#CE5135;
   }
   
   .next:disabled, .slider:disabled, 
   .prev:disabled  { height:0; border:none; foreground-image:none; }
   
-  .base:disabled
-  {
-    background-image: none; 
-    background-repeat:repeat; 
-    background-position:0 0 0 0;
-  }
-    
+   
   .slider:hover { background-color: #CE5135; }
   
   .slider:active { background-color: #CE5135; }
   
-  .base { width: 10px; height: 0px; padding-left: 10px; padding-right: 10px;} /* explicit declaration of its width */
-  .corner { background-color: transparent; }
+  .base { width: 10px;} /* explicit declaration of its width */
+  .corner { }
 }

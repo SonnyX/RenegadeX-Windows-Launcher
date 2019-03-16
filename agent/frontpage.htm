@@ -1,0 +1,226 @@
+<html window-icon="images/rx.ico" window-frame="extended" window-resizable>
+<head>
+<title>Minimalistic Sciter demo</title>
+<style>
+  @import url(general.css);
+  @import url(vgrid.css);
+</style>
+<script type="text/tiscript">
+  include "menubar.tls";
+  function refreshMirrors() {
+    stdout.println("RefreshMirrors");
+    var rqp = { 
+      type: #get, 
+      url: "http://serverlist.renegade-x.com/servers.jsp",
+      output:#json,
+      success: function(result, status) {
+        stdout.println("Got a result from #get (refreshMirrors)");
+        var records = new Array(result.length);
+        for (var i=0; i<result.length; i++) {
+          records[i] = {
+            index: i,
+            name: result[i].Name,
+            map: result[i]["Current Map"],
+            players: result[i]["Players"] + "/" + result[i]["Variables"]["Player Limit"],
+            latency: "0ms",
+            data: result[i],
+          };
+        }
+        var vlist = $(table);
+        if(vlist.value != null) {
+          stdout.println(vlist.value);
+          stdout.println(vlist.tbody.currentIndex);
+        }
+        vlist.value = records;
+        stdout.println("also got this far");
+        stdout.println(vlist.tbody.currentIndex);
+        stdout.println("but not this far");
+
+
+        vlist.tbody.currentIndex = 0;
+        vlist << event change {
+          stdout.println("change", vlist.tbody.currentIndex)
+        }
+
+        vlist << event dblclick $(tr) {
+          stdout.println("dblclick", vlist.tbody.currentIndex)
+          stdout.println(vlist.value[vlist.tbody.currentIndex]["data"].IP + ":" + vlist.value[vlist.tbody.currentIndex]["data"].Port);
+          refreshMirrors();
+          stdout.println(vlist.value[vlist.tbody.currentIndex]["data"].IP + ":" + vlist.value[vlist.tbody.currentIndex]["data"].Port);
+        }
+
+        vlist << event click $(th.sortable) 
+        {
+          this.sortVlist();
+        }
+      },
+      onerror: function(data, status) {
+        stdout.println("Got a error from #get");
+      },
+      returns: true,
+    };
+    return View.request(rqp);
+  }
+
+  function self.ready() {
+    stdout.println("frontpage loaded");
+    view.register_irc_callback(onIrcMessage);
+    var vlist = $(table);
+    refreshMirrors();
+  }
+
+  function onIrcMessage(message) {
+    stdout.println(message);
+    $(#chat-display).html += message;
+  }
+
+  function sendIrcMessage(message) {
+    stdout.println(message.value);
+    view.send_irc_message(message.value);
+    message.value = undefined;
+  }
+
+  function sortVlist() {
+    var name = this.attributes["name"];
+    var order = this.attributes["order"];
+    function cmpascend(a,b) {
+      if( a[name] > b[name] ) return 1;
+      else if (a[name] < b[name]) return -1;
+      return 0;
+    }
+    function cmpdescend(a,b) {
+      if( a[name] < b[name] ) return 1;
+      else if (a[name] > b[name]) return -1;
+      return 0;
+    }
+    if ( order == "ascend" ) {
+       this.attributes["order"] = "descend" ;
+       vlist.value.sort(cmpdescend);
+    } else if ( order == "descend" ){
+       this.attributes["order"] = "ascend" ;
+       vlist.value.sort(cmpascend);
+    } else {
+      // the column was not ordered before, remove @order from other columns
+      if(var psort = this.parent.$(th[order]) ) {
+        psort.attributes["order"] = undefined; // remove the attribute from previously ordered sibling
+      }
+      // set this column as ascend order:
+      this.attributes["order"] = "ascend";
+      vlist.value.sort(cmpascend);
+    }
+  }
+</script>
+</head>
+<body model="dom">
+<include src="menubar.htm" />
+<div id="flow-container">
+  <div class="top-margin" style="display: inline-block; margin:auto; max-width:1600px; background-image: url(images/RenX_Logo.png); background-position: center; background-repeat: stretch keep-ratio;">
+    <div #IGN-container style="flow:vertical;vertical-align:middle;">
+      <p>Welcome</p>
+      <h1 style="flow: horizontal; vertical-align: middle;">
+        <picture src="images/EditName.svg" style="width: 17px; height: 35px; margin-left: 7px; margin-right: 7px;"/>
+        Murica! Fuck yeah!
+      </h1>
+    </div>
+    <div style="width:*;"></div>
+    <div #Ver-container style="flow:vertical;text-align:right;vertical-align:middle;">
+      <p>Version</p>
+      <h1>5.373</h1>
+    </div>
+  </div>
+  <div class="horizontal-margin"></div>
+  <div class="horizontal-margin"></div>
+  <div class="bottom-margin"></div>
+  <div id="main-content">
+    <div #server-container>
+      <div #header>
+        <h1>SERVERS</h1>
+        <p#players>44 Players Online</p>
+        <div #search-container style="margin-left:auto;">
+          Filter 
+          <picture src="images/FilterDown.svg" style="width: 17px; height: 35px; margin-left: 7px; margin-right: 10px;"/>
+          <div #search-bar>
+            <picture class="centered" src="images/Search.svg" style="width: 12px; height: 35px; margin-left: 7px; margin-right: 7px;"/>
+            <input type="text" novalue="Search" style="width:*; height: 15px; margin-right: 5px;"/>
+          </div>
+          <picture src="images/Refresh.svg" style="width: 12px; height: 35px; margin-left: 10px; margin-right:3px;"/>
+        </div>
+        <div #refresh-button>
+          <picture />
+        </div>
+      </div>
+      <table resizeable>
+        <thead>
+          <tr>
+            <th(name).sortable>Server Name</th>
+            <th(map).sortable>Map</th>
+            <th(players).sortable>Players</th>
+            <th(latency).sortable>Ping</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td(name)></td>
+            <td(map)></td>
+            <td(players)></td>
+            <td(latency)></td>
+          </tr>
+        </tbody>
+      </table>
+      <div #server-info>
+        <h1 id="server-info-title">FairPlayInc.uk - Marathon</h1>
+        <div id="server-info-body">
+          <div id="server-info-grid">
+            <div style="margin-right: 10px;">
+              <div style="width:*; height:*; flow:horizontal;">
+                <div style="width:*; height:*; flow:vertical;">
+                  <p>Game Length: 0</p>
+                  <p>Vehicle Limit: 8</p>
+                  <p>Player Limit: 64</p>
+                  <p>Mine Limit: 24</p>
+                  <p>Game Mode: CNC</p>
+                </div>
+                <div style="width:*; height:*; flow:vertical;">
+                  <p>Game Length: 0</p>
+                  <p>Vehicle Limit: 8</p>
+                  <p>Player Limit: 64</p>
+                  <p>Mine Limit: 24</p>
+                  <p>Game Mode: CNC</p>
+                </div>
+              </div>
+            </div>
+            <div style="margin-left: 10px;">
+              <picture src="images/cnc-field.png" style="width:100%;" />
+              <h1 style="margin-top: 10px; margin-bottom: 10px; font-size: 14px; color: #CE5135;">FIELD X</h1>
+              <div style="flow: horizontal;">
+                <div style="flow: vertical">
+                  <p>GDI: 9742</p>
+                  <p>NOD: 8543</p>
+                </div>
+                <div style="margin-left: 20px; flow: vertical">
+                  <p>19 players</p>
+                  <p>19 players</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button style="margin-top: 20px;"><h3>JOIN SERVER</h3></button>
+        </div>
+      </div>
+    </div>
+
+
+    <div #chat-container>
+      <div #header>
+        <h1>LOBBY CHAT</h1>
+      </div>
+      <div #chat-display readonly="true" spellcheck="false" style="behavior: htmlarea;">
+      </div>
+      <div #reply-chat>
+        <input type="text" novalue="Type here..." enter="sendIrcMessage(this)" />
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
