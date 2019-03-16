@@ -65,10 +65,10 @@ table { style-set: vgrid; // see vgrid.css
         width:*;
         height:*; } 
 
-table th:nth-child(1) { width:254px; }
-table th:nth-child(2) { width:134px; }
-table th:nth-child(3) { width:58px; }
-table th:nth-child(4) { width:50px; }
+table th:nth-child(1) { width:50%; }
+table th:nth-child(2) { width:25%; }
+table th:nth-child(3) { width:12%; }
+table th:nth-child(4) { width:8%; }
 
 table th[order=ascend]  {
   foreground-image:url(stock:arrow-down);

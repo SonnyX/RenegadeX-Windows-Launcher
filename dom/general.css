@@ -105,7 +105,9 @@ body {
   min-height: min-content;
 }
 #server-container {
-  width: 530px;
+  min-width: 530px;
+  width: *;
+  max-width: 700px;
   background-color: #0d172190;
   height: *;
 }
@@ -230,9 +232,9 @@ button > * {
   margin: 10px;
 }
 #reply-chat {
-  height: 46px;
+  height: 48px;
   width:*;
-  background-color: #06090E;
+  background-color: #06090E00;
 }
 #reply-chat > input {
   margin: 8px;
@@ -242,6 +244,7 @@ button > * {
   padding-left: 5px;
   padding-right: 5px;
   border-radius: 8px;
+  border: 1px solid black;
 }
 
 /*

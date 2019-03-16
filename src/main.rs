@@ -61,10 +61,33 @@ struct Handler {
   patcher: Arc<Mutex<Downloader>>,
   irc_client: Arc<Mutex<Option<irc::client::IrcClient>>>,
   irc_callback: Arc<Mutex<Option<sciter::Value>>>,
+  conf: Arc<Mutex<ini::Ini>>,
 }
 
 impl Handler {
   fn check_update(&self, done: sciter::Value, error: sciter::Value) -> bool {
+    {
+      let progress = self.patcher.clone().lock().unwrap().get_progress();
+      let update = &progress.lock().unwrap().update;
+      match update {
+        Update::UpToDate => {
+          println!("No update available");
+          done.call(None, &make_args!(false, false), None).unwrap();
+          return true;
+        },
+        Update::Resume | Update::Full => {
+          println!("Resuming download!");
+          done.call(None, &make_args!(true, true), None).unwrap();
+          return true;
+        },
+        Update::Delta => {
+          println!("Update available");
+          done.call(None, &make_args!(true, false), None).unwrap();
+          return true;
+        },
+        Update::Unknown => {}
+      }
+    }
     let patcher = self.patcher.clone();
 		std::thread::spawn(move || {
       let check_update = || -> Result<(), Error> {
@@ -86,6 +109,9 @@ impl Handler {
           Update::Delta => {
             println!("Update available");
             done.call(None, &make_args!(true, false), None).unwrap();
+          },
+          Update::Unknown => {
+            println!("Impossible");
           }
         };
         Ok(())
@@ -159,6 +185,18 @@ impl Handler {
     });
     true
   }
+
+  fn get_playername(&self, callback: sciter::Value) -> bool {
+    let conf_unlocked = self.conf.clone();
+
+    std::thread::spawn(move || {
+      let conf = conf_unlocked.lock().unwrap();
+      let section = conf.section(Some("RenX_Launcher".to_owned())).unwrap();
+      let playername = section.get("PlayerName").unwrap();
+      callback.call(None, &make_args!(playername.as_str()), None).unwrap();
+    });
+    true
+  }
 }
 
 impl sciter::EventHandler for Handler {
@@ -167,7 +205,8 @@ impl sciter::EventHandler for Handler {
     fn start_download(Value, Value, Value);
     fn send_irc_message(Value); //Parameter is a string
     fn register_irc_callback(Value); //Register's the callback
-    fn get_status(Value);
+    fn get_status(Value); //forgot what it was intended for, atleast two three values should be differentiated: UpToDate, Downloading, UpdateAvailable
+    fn get_playername(Value);
   }
 }
 
@@ -181,6 +220,7 @@ fn main() {
   let conf = match Ini::load_from_file("RenegadeX-Launcher.ini") {
     Ok(conf) => conf,
     Err(_e) => {
+      //TODO spawn dialog that gets PlayerName
       let mut conf = Ini::new();
       conf.with_section(Some("RenX_Launcher"))
         .set("GameLocation", "C:/Program Files (x86)/Renegade X/")
@@ -198,6 +238,7 @@ fn main() {
   let game_location = section.get("GameLocation").unwrap();
   let version_url = section.get("VersionUrl").unwrap();
   let launcher_theme = section.get("LauncherTheme").unwrap();
+  let playername = section.get("PlayerName").unwrap().clone();
 
   let mut current_path = std::env::current_exe().unwrap();
   current_path.pop();
@@ -216,13 +257,14 @@ fn main() {
   let client_clone : Arc<Mutex<Option<irc::client::IrcClient>>> = Arc::new(Mutex::new(None));
   let irc_messages : Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
   let irc_callback : Arc<Mutex<Option<sciter::Value>>> = Arc::new(Mutex::new(None));
-  frame.event_handler(Handler{patcher: patcher.clone(), irc_client: client_clone.clone(), irc_callback: irc_callback.clone()});
+  let conf_arc = Arc::new(Mutex::new(conf.clone()));
+  frame.event_handler(Handler{patcher: patcher.clone(), irc_client: client_clone.clone(), irc_callback: irc_callback.clone(), conf: conf_arc});
   current_path.push(format!("{}/load-page.htm", launcher_theme));
   frame.load_file(current_path.to_str().unwrap());
 
   let irc_thread = std::thread::spawn(move || {
     let config = Config {
-      nickname: Some("SonnyX".to_owned()),
+      nickname: Some(playername.to_owned()),
       server: Some("irc.cncirc.net".to_owned()),
       channels: Some(vec!["#renegadex".to_owned()]),
       use_ssl: Some(true),

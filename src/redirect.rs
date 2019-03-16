@@ -1,4 +1,4 @@
-//! Gagging on windows targets.
+//! Redirecting std(out/err) on windows targets.
 //!
 //! The windows gagging api is independent of the `gag` module, and the ergonomics of gagging is different.
 //! The gagging functionality is much the same.

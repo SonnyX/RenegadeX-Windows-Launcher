@@ -64,9 +64,14 @@
 
   function self.ready() {
     stdout.println("frontpage loaded");
+    view.get_playername(playernameCallback);
     view.register_irc_callback(onIrcMessage);
     var vlist = $(table);
     refreshMirrors();
+  }
+
+  function playernameCallback(playername) {
+    $(#playername).html = playername;
   }
 
   function onIrcMessage(message) {
@@ -119,7 +124,7 @@
       <p>Welcome</p>
       <h1 style="flow: horizontal; vertical-align: middle;">
         <picture src="images/EditName.svg" style="width: 17px; height: 35px; margin-left: 7px; margin-right: 7px;"/>
-        Murica! Fuck yeah!
+        <h1 #playername>Murica! Fuck yeah!</h1>
       </h1>
     </div>
     <div style="width:*;"></div>
