@@ -7,67 +7,56 @@
 </style>
 <script type="text/tiscript">
   include "menubar.tls";
-  function refreshMirrors() {
-    stdout.println("RefreshMirrors");
-    var rqp = { 
-      type: #get, 
-      url: "http://serverlist.renegade-x.com/servers.jsp",
-      output:#json,
-      success: function(result, status) {
-        stdout.println("Got a result from #get (refreshMirrors)");
-        var records = new Array(result.length);
-        for (var i=0; i<result.length; i++) {
-          records[i] = {
-            index: i,
-            name: result[i].Name,
-            map: result[i]["Current Map"],
-            players: result[i]["Players"] + "/" + result[i]["Variables"]["Player Limit"],
-            latency: "0ms",
-            data: result[i],
-          };
-        }
-        var vlist = $(table);
-        if(vlist.value != null) {
-          stdout.println(vlist.value);
-          stdout.println(vlist.tbody.currentIndex);
-        }
-        vlist.value = records;
-        stdout.println("also got this far");
-        stdout.println(vlist.tbody.currentIndex);
-        stdout.println("but not this far");
 
+  function getMirrorsCallback(result) {
+    var records = new Array(result.length);
+    for (var i=0; i<result.length; i++) {
+      records[i] = {
+        index: i,
+        name: result[i].Name,
+        map: result[i]["Current Map"],
+        players: result[i]["Players"] + "/" + result[i]["Variables"]["Player Limit"],
+        latency: "0ms",
+        data: result[i],
+      };
+    }
+    var vlist = $(table);
 
-        vlist.tbody.currentIndex = 0;
-        vlist << event change {
-          stdout.println("change", vlist.tbody.currentIndex)
+    if(vlist.value != null) {
+      var i = 0;
+      for (var record; i < records.length; i++) {
+        record = records[i];
+        if ( record["data"].IP == vlist.value[vlist.tbody.currentIndex]["data"].IP ) {
+          if ( record["data"].Port == vlist.value[vlist.tbody.currentIndex]["data"].Port ) {
+            break;
+          }
         }
+      }
+      vlist.value = records;
+      vlist.tbody.currentIndex = i;
+    } else {
+      vlist.value = records;
+      vlist.tbody.currentIndex = 0;
+      vlist << event change {
+        stdout.println("change", vlist.tbody.currentIndex);
+        stdout.println("Change server-info box here");
+      }
 
-        vlist << event dblclick $(tr) {
-          stdout.println("dblclick", vlist.tbody.currentIndex)
-          stdout.println(vlist.value[vlist.tbody.currentIndex]["data"].IP + ":" + vlist.value[vlist.tbody.currentIndex]["data"].Port);
-          refreshMirrors();
-          stdout.println(vlist.value[vlist.tbody.currentIndex]["data"].IP + ":" + vlist.value[vlist.tbody.currentIndex]["data"].Port);
-        }
+      vlist << event dblclick $(tr) {
+        stdout.println("dblclick", vlist.tbody.currentIndex)
+      }
 
-        vlist << event click $(th.sortable) 
-        {
-          this.sortVlist();
-        }
-      },
-      onerror: function(data, status) {
-        stdout.println("Got a error from #get");
-      },
-      returns: true,
-    };
-    return View.request(rqp);
+      vlist << event click $(th.sortable) {
+        this.sortVlist();
+      }
+    }
   }
 
   function self.ready() {
     stdout.println("frontpage loaded");
     view.get_playername(playernameCallback);
     view.register_irc_callback(onIrcMessage);
-    var vlist = $(table);
-    refreshMirrors();
+    view.get_mirrors(getMirrorsCallback);
   }
 
   function playernameCallback(playername) {
@@ -148,13 +137,13 @@
             <picture class="centered" src="images/Search.svg" style="width: 12px; height: 35px; margin-left: 7px; margin-right: 7px;"/>
             <input type="text" novalue="Search" style="width:*; height: 15px; margin-right: 5px;"/>
           </div>
-          <picture src="images/Refresh.svg" style="width: 12px; height: 35px; margin-left: 10px; margin-right:3px;"/>
+          <picture src="images/Refresh.svg" onclick="refreshMirrors();" style="width: 12px; height: 35px; margin-left: 10px; margin-right:3px;"/>
         </div>
         <div #refresh-button>
           <picture />
         </div>
       </div>
-      <table resizeable>
+      <table>
         <thead>
           <tr>
             <th(name).sortable>Server Name</th>

@@ -516,10 +516,9 @@ class VList : Behavior
 class VTh : Behavior 
 {
   function sortVlist() {
+    var vlist = this.parent.parent.parent;
     var name = this.attributes["name"];
-    stdout.println("got the name: " + name);
     var order = this.attributes["order"];
-    stdout.println("got the order: " + order);
     function cmpascend(a,b) {
       if( a[name] > b[name] ) return 1;
       else if (a[name] < b[name]) return -1;
