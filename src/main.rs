@@ -197,6 +197,15 @@ impl Handler {
     });
     true
   }
+
+  fn get_mirrors(&self, callback: sciter::Value) -> bool {
+    std::thread::spawn(move || {
+      //reqwest server
+      let text : Value = reqwest::get("http://serverlist.renegade-x.com/servers.jsp").unwrap().text().unwrap().parse().unwrap();
+      callback.call(None, &make_args!(text), None).unwrap();
+    });
+    true
+  }
 }
 
 impl sciter::EventHandler for Handler {
@@ -207,6 +216,7 @@ impl sciter::EventHandler for Handler {
     fn register_irc_callback(Value); //Register's the callback
     fn get_status(Value); //forgot what it was intended for, atleast two three values should be differentiated: UpToDate, Downloading, UpdateAvailable
     fn get_playername(Value);
+    fn get_mirrors(Value);
   }
 }
 
